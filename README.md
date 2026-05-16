@@ -1,0 +1,1 @@
+# Ghost Scribe Updates&#10;This repository hosts auto-update releases for Ghost Scribe.
