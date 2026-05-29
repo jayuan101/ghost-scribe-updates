@@ -1,0 +1,92 @@
+{
+  "name": "ghost-scribe",
+  "version": "1.8.5",
+  "description": "Stealth live transcription with AI speaker diarization",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging",
+    "build:win": "electron-builder --win --x64",
+    "release": "electron-builder --win --x64 --publish=always",
+    "cli": "node cli.js",
+    "server": "node server/server.js",
+    "docker:build": "docker build -t ghost-scribe .",
+    "docker:run": "docker-compose up"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@deepgram/sdk": "^3.9.0",
+    "commander": "^12.1.0",
+    "docx": "^8.5.0",
+    "electron-updater": "^6.8.3",
+    "express": "^4.21.0",
+    "node-record-lpcm16": "^1.0.1",
+    "png-to-ico": "^3.0.1",
+    "sentiment": "^5.0.2",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.ghostscribe.app",
+    "productName": "Ghost Scribe",
+    "copyright": "Ghost Scribe",
+    "icon": "build/icon.ico",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/icon.ico",
+      "main.js",
+      "preload.js",
+      "renderer/**",
+      "services/**",
+      "node_modules/**",
+      "!node_modules/node-record-lpcm16/**",
+      "!**/node_modules/*/{CHANGELOG.md,HISTORY.md,README.md,readme.md}",
+      "!**/node_modules/*/test{,s}/**",
+      "!server/**",
+      "!web/**",
+      "!cli.js",
+      "!Dockerfile",
+      "!docker-compose.yml",
+      "!.dockerignore",
+      "!dist/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ghost Scribe"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "jayuan101",
+      "repo": "ghost-scribe-updates",
+      "releaseType": "release"
+    }
+  },
+  "keywords": [
+    "transcription",
+    "electron",
+    "deepgram",
+    "stealth",
+    "diarization"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+  <title>Ghost Scribe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- Title Bar -->
+    <div class="titlebar" id="titlebar">
+      <div class="titlebar-left">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="app-icon" id="appIconDisplay" title="Click to change icon">👻</span>
+        <!-- Mini icon picker popup -->
+        <div class="icon-popup" id="iconPopup" style="display:none">
+          <div class="icon-popup-emojis">
+            <span class="emoji-opt" data-e="👻">👻</span><span class="emoji-opt" data-e="🎙">🎙</span>
+            <span class="emoji-opt" data-e="🎧">🎧</span><span class="emoji-opt" data-e="🔊">🔊</span>
+            <span class="emoji-opt" data-e="📝">📝</span><span class="emoji-opt" data-e="🤖">🤖</span>
+            <span class="emoji-opt" data-e="🦊">🦊</span><span class="emoji-opt" data-e="🐉">🐉</span>
+            <span class="emoji-opt" data-e="⚡">⚡</span><span class="emoji-opt" data-e="🔥">🔥</span>
+            <span class="emoji-opt" data-e="💎">💎</span><span class="emoji-opt" data-e="🚀">🚀</span>
+            <span class="emoji-opt" data-e="🌙">🌙</span><span class="emoji-opt" data-e="⭐">⭐</span>
+            <span class="emoji-opt" data-e="🎯">🎯</span><span class="emoji-opt" data-e="🧠">🧠</span>
+          </div>
+          <div class="icon-popup-actions">
+            <button class="icon-popup-upload" id="popupUploadBtn">📁 Upload image</button>
+            <button class="icon-popup-reset" id="popupResetBtn">↺ Reset</button>
+          </div>
+        </div>
+        <span class="app-name">Ghost Scribe</span>
+        <span class="app-version" id="appVersion"></span>
+        <span class="status-label" id="statusLabel">Ready</span>
+      </div>
+      <div class="titlebar-right">
+        <button class="icon-btn" id="clickThroughBtn" title="Click-through mode — clicks pass to app behind (hover titlebar to regain control)">🖱</button>
+        <button class="icon-btn" id="historyBtn" title="Session History">📋</button>
+        <button class="icon-btn" id="stealthBtn" title="Toggle stealth (invisible to screen share)">👻</button>
+        <button class="icon-btn" id="themeBtn" title="Toggle dark / light mode">🌓</button>
+        <button class="icon-btn" id="settingsBtn" title="Settings">⚙</button>
+        <button class="icon-btn" id="pinBtn" title="Always on top">📌</button>
+        <button class="icon-btn" id="minimizeBtn" title="Minimize">−</button>
+        <button class="icon-btn" id="closeBtn" title="Close">×</button>
+      </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="update-modal" style="display:none">
+      <div class="update-modal-inner">
+        <div class="update-modal-header">
+          <div class="update-modal-titles">
+            <div class="update-modal-title" id="updateModalTitle">Update Available</div>
+            <div class="update-modal-version" id="updateModalVersion"></div>
+          </div>
+          <button class="icon-btn" id="updateDismissBtn" title="Remind me later">×</button>
+        </div>
+        <div class="update-modal-notes" id="updateModalNotes"></div>
+        <div class="update-modal-progress" id="updateModalProgress" style="display:none">
+          <div class="update-progress-track">
+            <div class="update-progress-fill" id="updateProgressFill"></div>
+          </div>
+          <span class="update-progress-label" id="updateProgressLabel">Downloading…</span>
+        </div>
+        <div class="update-modal-actions" id="updateModalActions">
+          <button class="btn-primary" id="updateNowBtn">Update Now</button>
+          <button class="btn-secondary" id="updateLaterBtn">Later</button>
+        </div>
+        <div class="update-modal-actions" id="updateRestartActions" style="display:none">
+          <button class="btn-primary" id="updateInstallBtn">Restart &amp; Install</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main View -->
+    <div id="mainView">
+
+      <!-- Record Hero -->
+      <div class="record-hero">
+        <button class="record-btn" id="recordBtn" title="Start / Stop Recording">
+          <span class="record-pulse-ring"></span>
+          <span class="record-icon" id="recordIcon">●</span>
+        </button>
+        <div class="record-meta">
+          <span id="recordLabel" class="record-label">Start Recording</span>
+          <span class="timer" id="timer">00:00</span>
+        </div>
+        <div class="record-bottom-row">
+          <div class="device-info" id="deviceInfo">🎤 Checking mic…</div>
+          <button class="pause-btn" id="pauseBtn" style="display:none" title="Pause / Resume">⏸</button>
+        </div>
+      </div>
+
+      <!-- Speaker legend -->
+      <div class="speaker-legend" id="speakerLegend" style="display:none"></div>
+
+      <!-- Transcript -->
+      <div class="transcript-box" id="transcriptBox">
+        <div class="placeholder" id="placeholder">
+          <div class="placeholder-icon">🎙</div>
+          <p>Press <strong>Start Recording</strong> to begin</p>
+          <p class="muted">Add your API key in ⚙ Settings first</p>
+        </div>
+        <div id="transcript"></div>
+      </div>
+
+      <!-- Interim (live partial result) -->
+      <div class="interim" id="interim"></div>
+
+      <!-- Live Network Monitor -->
+      <div class="net-bar" id="netBar" style="display:none">
+        <span class="net-item" id="netSent" title="Data sent to transcription API">↑ 0 KB</span>
+        <span class="net-sep">·</span>
+        <span class="net-item" id="netLatency" title="Average transcription latency">⚡ –</span>
+        <span class="net-sep">·</span>
+        <span class="net-item net-cost" id="netCostEst" title="Estimated API cost this session">~$0.0000</span>
+      </div>
+
+    </div>
+
+    <!-- Summary View -->
+    <div id="summaryView" style="display:none">
+      <div class="view-header">
+        <span>Session Summary</span>
+      </div>
+      <div id="summaryContent" class="summary-body"></div>
+      <div id="networkCost" class="network-cost-section" style="display:none"></div>
+      <div id="toneStatus" class="tone-loading" style="display:none">
+        <span class="spinner"></span> Analyzing tone…
+      </div>
+      <div id="toneContent" class="tone-section" style="display:none"></div>
+      <div class="summary-actions">
+        <button class="btn-primary" id="saveTxtBtn">💾 Save .TXT</button>
+        <button class="btn-primary" id="saveDocxBtn">📄 Save .DOCX</button>
+        <button class="btn-secondary" id="newSessionBtn">New Session</button>
+      </div>
+    </div>
+
+    <!-- History View -->
+    <div id="historyView" style="display:none">
+      <div class="view-header">
+        <span>Session History</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn-secondary-sm" id="clearHistoryBtn">Clear All</button>
+          <button class="icon-btn" id="closeHistory">×</button>
+        </div>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="settingsView" style="display:none">
+      <div class="view-header">
+        <span>Settings</span>
+        <button class="icon-btn" id="closeSettings">×</button>
+      </div>
+      <div class="settings-body">
+
+        <!-- ── TRANSCRIPTION ─────────────────────────────── -->
+        <div class="settings-section-header">🎙 Transcription</div>
+
+        <div class="field-group">
+          <label>Provider</label>
+          <select id="transcriptionProvider">
+            <option value="deepgram">Deepgram — Real-time streaming (Recommended)</option>
+            <option value="gladia">Gladia — Real-time streaming (Free tier)</option>
+            <option value="assemblyai">AssemblyAI — Real-time streaming</option>
+            <option value="openai">OpenAI Whisper — Batch mode</option>
+            <option value="groq">Groq Whisper — Ultra-fast batch</option>
+          </select>
+        </div>
+
+        <!-- Deepgram -->
+        <div class="provider-fields" id="stt-deepgram">
+          <div class="field-group">
+            <label>Deepgram API Key</label>
+            <input type="password" id="deepgramKey" placeholder="dg_…" autocomplete="off">
+            <span class="field-hint">console.deepgram.com — free tier available</span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="deepgramModel">
+              <option value="nova-3">Nova-3 (Latest — best accuracy + accents)</option>
+              <option value="nova-3-general">Nova-3 General</option>
+              <option value="nova-3-medical">Nova-3 Medical</option>
+              <option value="nova-2">Nova-2</option>
+              <option value="nova-2-meeting">Nova-2 Meeting</option>
+              <option value="nova-2-phonecall">Nova-2 Phonecall</option>
+              <option value="nova-2-medical">Nova-2 Medical</option>
+              <option value="enhanced">Enhanced</option>
+              <option value="base">Base (fastest)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Custom Model (overrides above)</label>
+            <input type="text" id="deepgramCustomModel" placeholder="e.g. nova-3-finance">
+            <span class="field-hint">Enter any Deepgram model name to use it directly</span>
+          </div>
+        </div>
+
+        <!-- Gladia -->
+        <div class="provider-fields" id="stt-gladia" style="display:none">
+          <div class="field-group">
+            <label>Gladia API Key</label>
+            <input type="password" id="gladiaKey" placeholder="…" autocomplete="off">
+            <span class="field-hint">app.gladia.io — free tier available, great multilingual support</span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="gladiaModel">
+              <option value="fast">Fast (default)</option>
+              <option value="accurate">Accurate</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- AssemblyAI -->
+        <div class="provider-fields" id="stt-assemblyai" style="display:none">
+          <div class="field-group">
+            <label>AssemblyAI API Key</label>
+            <input type="password" id="assemblyaiKey" placeholder="…" autocomplete="off">
+            <span class="field-hint">assemblyai.com — real-time diarization included</span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="assemblyaiModel">
+              <option value="best">Best (highest accuracy)</option>
+              <option value="nano">Nano (fastest, cheapest)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- OpenAI -->
+        <div class="provider-fields" id="stt-openai" style="display:none">
+          <div class="field-group">
+            <label>OpenAI API Key</label>
+            <input type="password" id="openaiKey" placeholder="sk-…" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="openaiWhisperModel">
+              <option value="whisper-1">whisper-1 (standard)</option>
+              <option value="gpt-4o-transcribe">gpt-4o-transcribe (best quality)</option>
+              <option value="gpt-4o-mini-transcribe">gpt-4o-mini-transcribe (faster)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Custom Model (overrides above)</label>
+            <input type="text" id="openaiCustomModel" placeholder="e.g. whisper-2">
+          </div>
+        </div>
+
+        <!-- Groq -->
+        <div class="provider-fields" id="stt-groq" style="display:none">
+          <div class="field-group">
+            <label>Groq API Key</label>
+            <input type="password" id="groqKey" placeholder="gsk_…" autocomplete="off">
+            <span class="field-hint">console.groq.com — fastest Whisper available</span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="groqWhisperModel">
+              <option value="whisper-large-v3">whisper-large-v3 (best accuracy)</option>
+              <option value="whisper-large-v3-turbo">whisper-large-v3-turbo (faster)</option>
+              <option value="distil-whisper-large-v3-en">distil-whisper (English only, fastest)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Custom Model (overrides above)</label>
+            <input type="text" id="groqCustomModel" placeholder="e.g. whisper-large-v3-turbo">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Language</label>
+          <select id="languageSelect">
+            <option value="multi">🌐 Auto-Detect (All languages)</option>
+
+            <optgroup label="🇺🇸 English">
+              <option value="en">English — All Accents (Global) ★</option>
+              <option value="en-US">English — US</option>
+              <option value="en-GB">English — UK (British)</option>
+              <option value="en-AU">English — Australia</option>
+              <option value="en-CA">English — Canada</option>
+              <option value="en-IN">English — India</option>
+              <option value="en-NZ">English — New Zealand</option>
+            </optgroup>
+
+            <optgroup label="🇪🇸 Spanish">
+              <option value="es">Spanish — Spain (Castilian)</option>
+              <option value="es-419">Spanish — Latin America</option>
+              <option value="es-MX">Spanish — Mexico</option>
+              <option value="es-AR">Spanish — Argentina</option>
+              <option value="es-CO">Spanish — Colombia</option>
+              <option value="es-CL">Spanish — Chile</option>
+              <option value="es-PE">Spanish — Peru</option>
+              <option value="es-VE">Spanish — Venezuela</option>
+              <option value="es-US">Spanish — United States</option>
+            </optgroup>
+
+            <optgroup label="🇫🇷 French">
+              <option value="fr">French — France</option>
+              <option value="fr-CA">French — Canada (Québécois)</option>
+              <option value="fr-BE">French — Belgium</option>
+              <option value="fr-CH">French — Switzerland</option>
+            </optgroup>
+
+            <optgroup label="🇮🇳 Indian Languages">
+              <option value="hi">Hindi</option>
+              <option value="ta">Tamil</option>
+              <option value="te">Telugu</option>
+              <option value="bn">Bengali</option>
+              <option value="mr">Marathi</option>
+              <option value="gu">Gujarati</option>
+              <option value="kn">Kannada</option>
+              <option value="ml">Malayalam</option>
+              <option value="pa">Punjabi</option>
+              <option value="ur">Urdu</option>
+            </optgroup>
+
+            <optgroup label="🇸🇦 Arabic">
+              <option value="ar">Arabic — Modern Standard</option>
+              <option value="ar-AE">Arabic — Gulf (UAE)</option>
+              <option value="ar-SA">Arabic — Saudi Arabia</option>
+              <option value="ar-EG">Arabic — Egypt</option>
+              <option value="ar-MA">Arabic — Morocco (Maghrebi)</option>
+            </optgroup>
+
+            <optgroup label="🇨🇳 Chinese">
+              <option value="zh-CN">Chinese — Mandarin (Mainland)</option>
+              <option value="zh-TW">Chinese — Mandarin (Taiwan)</option>
+              <option value="yue-Hant-HK">Chinese — Cantonese (Hong Kong)</option>
+            </optgroup>
+
+            <optgroup label="🇵🇹 Portuguese">
+              <option value="pt-BR">Portuguese — Brazil</option>
+              <option value="pt-PT">Portuguese — Portugal</option>
+            </optgroup>
+
+            <optgroup label="🌍 European">
+              <option value="de">German</option>
+              <option value="de-AT">German — Austria</option>
+              <option value="de-CH">German — Switzerland</option>
+              <option value="it">Italian</option>
+              <option value="nl">Dutch</option>
+              <option value="ru">Russian</option>
+              <option value="pl">Polish</option>
+              <option value="uk">Ukrainian</option>
+              <option value="sv">Swedish</option>
+              <option value="da">Danish</option>
+              <option value="nb">Norwegian</option>
+              <option value="fi">Finnish</option>
+              <option value="cs">Czech</option>
+              <option value="sk">Slovak</option>
+              <option value="ro">Romanian</option>
+              <option value="hu">Hungarian</option>
+              <option value="el">Greek</option>
+              <option value="bg">Bulgarian</option>
+              <option value="hr">Croatian</option>
+              <option value="ca">Catalan</option>
+            </optgroup>
+
+            <optgroup label="🌏 Asia &amp; Pacific">
+              <option value="ja">Japanese</option>
+              <option value="ko">Korean</option>
+              <option value="vi">Vietnamese</option>
+              <option value="th">Thai</option>
+              <option value="id">Indonesian</option>
+              <option value="ms">Malay</option>
+              <option value="tl">Filipino (Tagalog)</option>
+            </optgroup>
+
+            <optgroup label="🌍 Middle East &amp; Other">
+              <option value="tr">Turkish</option>
+              <option value="he">Hebrew</option>
+              <option value="fa">Persian (Farsi)</option>
+              <option value="sw">Swahili</option>
+            </optgroup>
+          </select>
+          <div class="field-hint">Tip: for interviews pick a specific language above. Use <strong>Auto-Detect</strong> only when the speaker's language is unknown.</div>
+        </div>
+
+        <!-- ── MEETING / INTERVIEW MODE ───────────────────────── -->
+        <div class="settings-section-header">🎙 Meeting &amp; Interview Mode</div>
+
+        <div class="field-group">
+          <label>AI Accent Enhancement</label>
+          <label class="toggle-row">
+            <input type="checkbox" id="accentEnhance">
+            <span class="toggle-label">Fix heavy-accent transcription errors with AI</span>
+          </label>
+          <div class="field-hint">After each spoken segment, AI reviews the transcription and corrects words misheard due to accent — works for any accent, any country. Uses your Groq or Claude key.</div>
+        </div>
+
+        <div class="field-group">
+          <label>Translate output to</label>
+          <select id="translateTo">
+            <option value="">Off (show original language)</option>
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Portuguese">Portuguese</option>
+            <option value="Chinese (Simplified)">Chinese (Simplified)</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Korean">Korean</option>
+            <option value="German">German</option>
+            <option value="Russian">Russian</option>
+          </select>
+          <div class="field-hint">Translates each spoken segment in real-time using your AI provider</div>
+        </div>
+
+        <!-- ── AI ANALYSIS ─────────────────────────────────── -->
+        <div class="settings-section-header">🤖 AI Analysis (Tone &amp; Sentiment)</div>
+
+        <div class="field-group">
+          <label>AI Provider</label>
+          <select id="analysisProvider">
+            <option value="claude">Claude (Anthropic) — Best quality</option>
+            <option value="openai">OpenAI GPT</option>
+            <option value="perplexity">Perplexity</option>
+            <option value="groq">Groq — Fastest (free tier)</option>
+            <option value="gemini">Google Gemini — Free tier available</option>
+            <option value="custom">Custom — Any OpenAI-compatible API</option>
+            <option value="ollama">Ollama — Local (no internet)</option>
+            <option value="none">None (basic local sentiment only)</option>
+          </select>
+        </div>
+
+        <!-- Auto-detect Claude Code credentials -->
+        <div id="autoCredRow" class="auto-cred-row" style="display:none">
+          <div class="auto-cred-icon">🔑</div>
+          <div class="auto-cred-text">
+            <strong>Claude Code credentials detected</strong>
+            <span id="autoCredSource"></span>
+          </div>
+          <button class="btn-auto-cred" id="useAutoCredBtn">Use</button>
+        </div>
+
+        <!-- Claude -->
+        <div class="provider-fields" id="ai-claude">
+          <div class="field-group">
+            <label>Anthropic API Key</label>
+            <input type="password" id="claudeKey" placeholder="sk-ant-…" autocomplete="off">
+            <span class="field-hint">console.anthropic.com</span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="claudeModel">
+              <option value="claude-haiku-4-5-20251001">Claude Haiku (fastest, cheapest)</option>
+              <option value="claude-sonnet-4-6">Claude Sonnet (smarter)</option>
+              <option value="claude-opus-4-7">Claude Opus (best)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- OpenAI Analysis -->
+        <div class="provider-fields" id="ai-openai" style="display:none">
+          <div class="field-group">
+            <label>OpenAI API Key</label>
+            <input type="password" id="openaiAnalysisKey" placeholder="sk-…" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="openaiAnalysisModel">
+              <option value="gpt-4o-mini">GPT-4o mini (fast, cheap)</option>
+              <option value="gpt-4o">GPT-4o (smarter)</option>
+              <option value="gpt-4-turbo">GPT-4 Turbo</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Perplexity -->
+        <div class="provider-fields" id="ai-perplexity" style="display:none">
+          <div class="field-group">
+            <label>Perplexity API Key</label>
+            <input type="password" id="perplexityKey" placeholder="pplx-…" autocomplete="off">
+            <span class="field-hint">perplexity.ai/api</span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="perplexityModel">
+              <option value="llama-3.1-sonar-large-128k-chat">Sonar Large (best)</option>
+              <option value="llama-3.1-sonar-small-128k-chat">Sonar Small (faster)</option>
+              <option value="sonar-pro">Sonar Pro</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Groq Analysis -->
+        <div class="provider-fields" id="ai-groq" style="display:none">
+          <div class="field-group">
+            <label>Groq API Key</label>
+            <input type="password" id="groqAnalysisKey" placeholder="gsk_…" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="groqAnalysisModel">
+              <option value="llama-3.1-8b-instant">Llama 3.1 8B (fastest)</option>
+              <option value="llama-3.1-70b-versatile">Llama 3.1 70B (smarter)</option>
+              <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Gemini -->
+        <div class="provider-fields" id="ai-gemini" style="display:none">
+          <div class="field-group">
+            <label>Google AI API Key</label>
+            <input type="password" id="geminiKey" placeholder="AIza…" autocomplete="off">
+            <span class="field-hint">aistudio.google.com — free tier available</span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <select id="geminiModel">
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash (fast, free)</option>
+              <option value="gemini-1.5-pro">Gemini 1.5 Pro (smarter)</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash (latest)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom OpenAI-compatible -->
+        <div class="provider-fields" id="ai-custom" style="display:none">
+          <div class="field-group">
+            <label>API Base URL</label>
+            <input type="text" id="customApiUrl" placeholder="https://api.deepseek.com/v1">
+            <span class="field-hint">Works with DeepSeek, Mistral, xAI Grok, Together AI, Fireworks, LM Studio, and any OpenAI-compatible API</span>
+          </div>
+          <div class="field-group">
+            <label>API Key</label>
+            <input type="password" id="customApiKey" placeholder="sk-…" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label>Model Name</label>
+            <input type="text" id="customApiModel" placeholder="deepseek-chat">
+          </div>
+        </div>
+
+        <!-- Ollama (local) -->
+        <div class="provider-fields" id="ai-ollama" style="display:none">
+          <div class="field-group">
+            <label>Ollama URL</label>
+            <input type="text" id="ollamaUrl" placeholder="http://localhost:11434">
+            <span class="field-hint">Install at ollama.ai — then: <code>ollama pull llama3.2</code></span>
+          </div>
+          <div class="field-group">
+            <label>Model</label>
+            <input type="text" id="ollamaModel" placeholder="llama3.2">
+          </div>
+        </div>
+
+        <!-- ── ICON ───────────────────────────────────────────── -->
+        <div class="settings-section-header">🎨 App Icon</div>
+
+        <div class="icon-picker-row">
+          <div class="icon-preview" id="iconPreview">👻</div>
+          <div class="icon-picker-actions">
+            <button class="btn-secondary" id="pickEmojiBtn">Pick Emoji</button>
+            <button class="btn-secondary" id="pickImageBtn">Upload Image</button>
+            <button class="btn-icon-reset" id="resetIconBtn" title="Reset to default">↺</button>
+          </div>
+        </div>
+
+        <!-- Emoji grid -->
+        <div class="emoji-grid" id="emojiGrid" style="display:none">
+          <span class="emoji-opt" data-e="👻">👻</span><span class="emoji-opt" data-e="🎙">🎙</span>
+          <span class="emoji-opt" data-e="🎧">🎧</span><span class="emoji-opt" data-e="🔊">🔊</span>
+          <span class="emoji-opt" data-e="📝">📝</span><span class="emoji-opt" data-e="🤖">🤖</span>
+          <span class="emoji-opt" data-e="🦊">🦊</span><span class="emoji-opt" data-e="🐉">🐉</span>
+          <span class="emoji-opt" data-e="⚡">⚡</span><span class="emoji-opt" data-e="🔥">🔥</span>
+          <span class="emoji-opt" data-e="💎">💎</span><span class="emoji-opt" data-e="🚀">🚀</span>
+          <span class="emoji-opt" data-e="🌙">🌙</span><span class="emoji-opt" data-e="⭐">⭐</span>
+          <span class="emoji-opt" data-e="🎯">🎯</span><span class="emoji-opt" data-e="🧠">🧠</span>
+        </div>
+
+        <!-- ── DISPLAY ──────────────────────────────────────── -->
+        <div class="settings-section-header">🪟 Display</div>
+
+        <div class="field-group toggle-row">
+          <span>Stealth Mode <small>(invisible to screen share)</small></span>
+          <label class="toggle">
+            <input type="checkbox" id="stealthCheck">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="field-group toggle-row">
+          <span>Always on Top</span>
+          <label class="toggle">
+            <input type="checkbox" id="alwaysOnTopCheck">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
+        <div class="field-group">
+          <label>Window Opacity — <span id="opacityLabel">93%</span></label>
+          <input type="range" id="opacityRange" min="20" max="100" value="93">
+        </div>
+
+        <div class="field-group">
+          <label>Font Size — <span id="fontLabel">15px</span></label>
+          <input type="range" id="fontRange" min="10" max="26" value="15">
+        </div>
+
+        <button class="btn-primary" id="saveSettingsBtn">Save Settings</button>
+        <button class="btn-secondary" id="checkUpdateBtn">Check for Updates</button>
+        <div class="settings-version" id="settingsVersion"></div>
+      </div>
+    </div>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
