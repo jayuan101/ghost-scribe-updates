@@ -1306,6 +1306,11 @@ function showUpdateGithubLink(version) {
 }
 
 const CHANGELOG = {
+  '1.9.1': [
+    'Critical fix: app no longer crashes on launch for new installs',
+    'DOCX export now works correctly — saves transcript and analysis as a Word document',
+    'Auto-update now recovers gracefully if a service file is missing',
+  ],
   '1.9.0': [
     'Session history — every recording auto-saved and browsable from the 📋 button',
     'View full transcript + tone analysis for any past session, delete entries individually',

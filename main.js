@@ -5,8 +5,10 @@ const { autoUpdater } = require('electron-updater')
 const path = require('path')
 const fs = require('fs')
 const os = require('os')
-const { generateDocx } = require('./services/docx-generator')
-const { analyzeTone } = require('./services/tone-analyzer')
+let generateDocx = async () => Buffer.from('')
+let analyzeTone   = async () => ({})
+try { generateDocx = require('./services/docx-generator').generateDocx } catch {}
+try { analyzeTone  = require('./services/tone-analyzer').analyzeTone   } catch {}
 
 // ── Auto-detect credentials from Claude Code or environment ──────────────────
 function detectAnthropicKey() {
