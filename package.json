@@ -1,6 +1,6 @@
 {
   "name": "ghost-scribe",
-  "version": "1.8.5",
+  "version": "1.9.0",
   "description": "Stealth live transcription with AI speaker diarization",
   "main": "main.js",
   "scripts": {

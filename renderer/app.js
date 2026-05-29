@@ -1292,6 +1292,13 @@ function toggleClickThrough() {
 // ── Changelog ─────────────────────────────────────────────────────────────────
 
 const CHANGELOG = {
+  '1.9.0': [
+    'Session history — every recording auto-saved and browsable from the 📋 button',
+    'View full transcript + tone analysis for any past session, delete entries individually',
+    'New modern UI: large circular record button with animated pulse ring when recording',
+    'Gradient buttons, pill badges, card shadows, smoother animations throughout',
+    'Richer dark theme with better color contrast and glow effects',
+  ],
   '1.8.5': [
     'Audio processing moved to dedicated thread (AudioWorklet) — lower CPU usage',
     'No longer competes with Android Studio, Discord, or other heavy apps for CPU',
