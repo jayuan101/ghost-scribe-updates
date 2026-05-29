@@ -1131,6 +1131,19 @@ body {
 
 .update-modal-actions { display: flex; gap: 8px; }
 
+.update-github-link {
+  display: block;
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+  text-align: center;
+  padding: 4px 0;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+.update-github-link:hover { opacity: 1; text-decoration: underline; }
+
 /* ── Toast ──────────────────────────────────────────────────────────────────── */
 .toast {
   position: fixed;

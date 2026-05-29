@@ -266,6 +266,7 @@ async function init() {
     $('updateModalVersion').textContent = `v${version} is ready to download`
     const notes = buildChangelog(version, releaseNotes)
     $('updateModalNotes').innerHTML = notes
+    showUpdateGithubLink(version)
     $('updateModalProgress').style.display = 'none'
     $('updateModalActions').style.display = 'flex'
     $('updateRestartActions').style.display = 'none'
@@ -289,14 +290,15 @@ async function init() {
   })
 
   window.electronAPI.onJustUpdated(({ version }) => {
-    $('updateModalTitle').textContent = '✅ Update Complete'
-    $('updateModalVersion').textContent = `Now running v${version}`
+    $('updateModalTitle').textContent = 'Updated to v' + version
+    $('updateModalVersion').textContent = "What's new:"
     $('updateModalNotes').innerHTML = buildChangelog(version, '')
+    showUpdateGithubLink(version)
     $('updateModalProgress').style.display = 'none'
     $('updateModalActions').style.display = 'none'
     $('updateRestartActions').style.display = 'none'
     $('updateModal').style.display = 'flex'
-    setTimeout(() => { $('updateModal').style.display = 'none' }, 8000)
+    setTimeout(() => { $('updateModal').style.display = 'none' }, 10000)
   })
 
   $('checkUpdateBtn').addEventListener('click', async () => {
@@ -1290,6 +1292,18 @@ function toggleClickThrough() {
 }
 
 // ── Changelog ─────────────────────────────────────────────────────────────────
+
+function showUpdateGithubLink(version) {
+  const link = $('updateGithubLink')
+  if (!link) return
+  const url = `https://github.com/jayuan101/ghost-scribe-updates/releases/tag/v${version}`
+  link.href = url
+  link.style.display = 'block'
+  link.onclick = (e) => {
+    e.preventDefault()
+    window.electronAPI.openExternal(url)
+  }
+}
 
 const CHANGELOG = {
   '1.9.0': [

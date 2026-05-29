@@ -1,6 +1,6 @@
 'use strict'
 
-const { app, BrowserWindow, ipcMain, dialog, nativeTheme } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, nativeTheme, shell } = require('electron')
 const { autoUpdater } = require('electron-updater')
 const path = require('path')
 const fs = require('fs')
@@ -467,6 +467,7 @@ ipcMain.handle('clear-icon', () => {
   return { success: true }
 })
 
+ipcMain.handle('open-external', (_, url) => shell.openExternal(url))
 ipcMain.handle('minimize-window', () => mainWindow?.minimize())
 ipcMain.handle('close-window', () => mainWindow?.close())
 ipcMain.handle('toggle-always-on-top', () => {

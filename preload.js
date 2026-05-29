@@ -53,6 +53,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   pickIconFile: () => ipcRenderer.invoke('pick-icon-file'),
   clearIcon: () => ipcRenderer.invoke('clear-icon'),
 
+  // Shell
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+
   // Auto-update
   onUpdateAvailable:    (cb) => ipcRenderer.on('update-available',     (_, d) => cb(d)),
   onUpdateNotAvailable: (cb) => ipcRenderer.on('update-not-available', (_, d) => cb(d)),
