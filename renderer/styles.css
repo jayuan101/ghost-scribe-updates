@@ -319,97 +319,83 @@ body {
   overflow: hidden;
 }
 
-/* ── Record Hero ────────────────────────────────────────────────────────────── */
-.record-hero {
+/* ── Record Bar ─────────────────────────────────────────────────────────────── */
+.record-bar {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 18px 0 10px;
+  gap: 12px;
+  padding: 10px 0 6px;
   flex-shrink: 0;
 }
 
 .record-btn {
-  position: relative;
-  width: 78px;
-  height: 78px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   border: none;
   background: linear-gradient(135deg, var(--accent), #2d6fdb);
   color: #fff;
   cursor: pointer;
-  font-size: 26px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 24px var(--accent-glow), 0 2px 8px rgba(0,0,0,0.5);
-  transition: transform 0.15s ease, box-shadow 0.25s ease, background 0.3s ease;
+  box-shadow: 0 3px 16px var(--accent-glow), 0 2px 6px rgba(0,0,0,0.4);
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.25s ease;
   outline: none;
+  overflow: hidden;
+  position: relative;
 }
 .record-btn:hover {
-  transform: scale(1.06);
-  box-shadow: 0 6px 32px var(--accent-glow), 0 2px 10px rgba(0,0,0,0.5);
+  transform: scale(1.07);
+  box-shadow: 0 5px 22px var(--accent-glow), 0 2px 8px rgba(0,0,0,0.4);
 }
-.record-btn:active { transform: scale(0.97); }
+.record-btn:active { transform: scale(0.94); }
 
 .record-btn.recording {
   background: linear-gradient(135deg, var(--danger), #c43050);
-  box-shadow: 0 4px 24px var(--danger-glow), 0 2px 8px rgba(0,0,0,0.5);
-}
-.record-btn.recording:hover {
-  box-shadow: 0 6px 32px var(--danger-glow), 0 2px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 3px 16px var(--danger-glow), 0 2px 6px rgba(0,0,0,0.4);
+  animation: pulse-glow 1.8s ease-in-out infinite;
 }
 
-/* Animated pulse ring when recording */
-.record-pulse-ring {
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2px solid var(--danger);
-  opacity: 0;
-  pointer-events: none;
-}
-.record-btn.recording .record-pulse-ring {
-  animation: pulse-ring 1.8s ease-out infinite;
-}
-
-@keyframes pulse-ring {
-  0%   { transform: scale(1);   opacity: 0.6; }
-  100% { transform: scale(1.55); opacity: 0; }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 3px 16px var(--danger-glow), 0 0 0 0 rgba(255,82,115,0.45); }
+  50%       { box-shadow: 0 3px 24px var(--danger-glow), 0 0 0 7px rgba(255,82,115,0); }
 }
 
 .record-icon {
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
-  position: relative;
-  z-index: 1;
 }
 
-.record-meta {
+.record-info {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 }
 
 .record-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.record-sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .timer {
-  font-size: 13px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
   color: var(--muted);
-  min-width: 38px;
-}
-
-.record-bottom-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-shrink: 0;
 }
 
 .device-info {
@@ -418,6 +404,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 .device-info.ok   { color: var(--success); }
 .device-info.warn { color: var(--warning); }
@@ -925,9 +913,29 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 .field-group.toggle-row > span { font-size: 13px; color: var(--text); }
 .field-group.toggle-row small  { font-size: 11px; color: var(--muted); display: block; }
+
+/* Toggle with label+description group (accent enhancement) */
+.toggle-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.toggle-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.toggle-label-group small {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
 
 .toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
 .toggle input { display: none; }

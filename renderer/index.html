@@ -81,20 +81,19 @@
     <!-- Main View -->
     <div id="mainView">
 
-      <!-- Record Hero -->
-      <div class="record-hero">
+      <!-- Record Bar -->
+      <div class="record-bar">
         <button class="record-btn" id="recordBtn" title="Start / Stop Recording">
-          <span class="record-pulse-ring"></span>
           <span class="record-icon" id="recordIcon">●</span>
         </button>
-        <div class="record-meta">
+        <div class="record-info">
           <span id="recordLabel" class="record-label">Start Recording</span>
-          <span class="timer" id="timer">00:00</span>
+          <div class="record-sub">
+            <span class="device-info" id="deviceInfo">🎤 Checking mic…</span>
+            <span class="timer" id="timer">00:00</span>
+          </div>
         </div>
-        <div class="record-bottom-row">
-          <div class="device-info" id="deviceInfo">🎤 Checking mic…</div>
-          <button class="pause-btn" id="pauseBtn" style="display:none" title="Pause / Resume">⏸</button>
-        </div>
+        <button class="pause-btn" id="pauseBtn" style="display:none" title="Pause / Resume">⏸</button>
       </div>
 
       <!-- Speaker legend -->
@@ -389,13 +388,15 @@
         <!-- ── MEETING / INTERVIEW MODE ───────────────────────── -->
         <div class="settings-section-header">🎙 Meeting &amp; Interview Mode</div>
 
-        <div class="field-group">
-          <label>AI Accent Enhancement</label>
-          <label class="toggle-row">
+        <div class="field-group toggle-row">
+          <div class="toggle-label-group">
+            <span class="toggle-title">AI Accent Enhancement</span>
+            <small>Fix heavy-accent errors with AI after each segment. Uses your Groq or Claude key.</small>
+          </div>
+          <label class="toggle">
             <input type="checkbox" id="accentEnhance">
-            <span class="toggle-label">Fix heavy-accent transcription errors with AI</span>
+            <span class="toggle-track"></span>
           </label>
-          <div class="field-hint">After each spoken segment, AI reviews the transcription and corrects words misheard due to accent — works for any accent, any country. Uses your Groq or Claude key.</div>
         </div>
 
         <div class="field-group">

@@ -134,10 +134,10 @@ app.on('window-all-closed', () => {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 440,
-    height: 700,
-    minWidth: 320,
-    minHeight: 450,
+    width: 390,
+    height: 600,
+    minWidth: 300,
+    minHeight: 420,
     transparent: true,
     frame: false,
     alwaysOnTop: settings.alwaysOnTop,
